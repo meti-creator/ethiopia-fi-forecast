@@ -28,10 +28,28 @@ def load_unified_dataset(filepath: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     Load the main data sheet and the Impact_sheet from the unified xlsx file.
 
+<<<<<<< HEAD
     Raises
     ------
     FileNotFoundError if filepath does not exist.
     DataValidationError if either sheet is missing, empty, or lacks required columns.
+=======
+    Parameters
+    ----------
+    filepath : str
+        Path to ethiopia_fi_unified_data.xlsx (or an enriched version of it).
+
+    Returns
+    -------
+    (main_df, impact_df) : Tuple[pd.DataFrame, pd.DataFrame]
+
+    Raises
+    ------
+    FileNotFoundError
+        If filepath does not exist.
+    DataValidationError
+        If either sheet is missing, empty, or lacks required columns.
+>>>>>>> task-2
     """
     path = Path(filepath)
     if not path.exists():
@@ -52,7 +70,12 @@ def load_unified_dataset(filepath: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
         impact_df = pd.read_excel(path, sheet_name="Impact_sheet")
     except ValueError as e:
         raise DataValidationError(
+<<<<<<< HEAD
             f"Could not read sheet 'Impact_sheet' from {filepath}. Original error: {e}"
+=======
+            f"Could not read sheet 'Impact_sheet' from {filepath}. "
+            f"Original error: {e}"
+>>>>>>> task-2
         ) from e
 
     if main_df.empty:
@@ -70,6 +93,7 @@ def load_unified_dataset(filepath: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
     bad_types = set(main_df["record_type"].dropna().unique()) - VALID_RECORD_TYPES
     if bad_types:
         raise DataValidationError(
+<<<<<<< HEAD
             f"Found unexpected record_type value(s): {bad_types}. Expected only: {VALID_RECORD_TYPES}"
         )
 
@@ -79,13 +103,38 @@ def load_unified_dataset(filepath: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
         print(
             f"Warning: {n_bad_dates} row(s) have an observation_date that could not be "
             f"parsed and were set to NaT. Check these rows before relying on temporal analysis."
+=======
+            f"Found unexpected record_type value(s): {bad_types}. "
+            f"Expected only: {VALID_RECORD_TYPES}"
+        )
+
+    main_df["observation_date"] = pd.to_datetime(
+        main_df["observation_date"], errors="coerce"
+    )
+    n_bad_dates = main_df["observation_date"].isna().sum()
+    if n_bad_dates > 0:
+        print(
+            f"Warning: {n_bad_dates} row(s) have an observation_date that could "
+            f"not be parsed and were set to NaT. Check these rows before relying "
+            f"on temporal analysis."
+>>>>>>> task-2
         )
 
     return main_df, impact_df
 
 
 def load_reference_codes(filepath: str) -> pd.DataFrame:
+<<<<<<< HEAD
     """Load reference_codes.xlsx, the rulebook of valid categorical values."""
+=======
+    """
+    Load reference_codes.xlsx, the rulebook of valid categorical values.
+
+    Raises
+    ------
+    FileNotFoundError, DataValidationError
+    """
+>>>>>>> task-2
     path = Path(filepath)
     if not path.exists():
         raise FileNotFoundError(f"reference_codes file not found at '{filepath}'.")
@@ -101,8 +150,17 @@ def validate_against_reference(
     value_col: str = "code"
 ) -> pd.DataFrame:
     """
+<<<<<<< HEAD
     Cross-check categorical columns in main_df against the allowed values
     listed in reference_codes. Returns a DataFrame of violations (empty if none).
+=======
+    Cross-check categorical columns in main_df (e.g. 'pillar', 'category',
+    'confidence') against the allowed values listed in reference_codes.
+
+    Returns a DataFrame of any violations found (empty if none). This does not
+    raise, since some violations may be expected (new data awaiting reference
+    update) - the caller decides whether to treat this as fatal.
+>>>>>>> task-2
     """
     violations = []
     if field_col not in ref_df.columns or value_col not in ref_df.columns:
@@ -122,4 +180,8 @@ def validate_against_reference(
         for val in bad:
             violations.append({"field": field, "invalid_value": val})
 
+<<<<<<< HEAD
     return pd.DataFrame(violations)
+=======
+    return pd.DataFrame(violations)
+>>>>>>> task-2
